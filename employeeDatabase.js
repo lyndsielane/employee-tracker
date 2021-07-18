@@ -15,12 +15,16 @@ class EmployeeDatabase {
         this.connection.connect((err) => {
             if (err) throw err;
             console.log(`connected as id ${this.connection.threadId}`);
-            this.connection.end();
         });
     }
 
-    createEmployee() {
-        //insert new employee
+    getDepartments() {
+        const sql = "SELECT name FROM department;";
+
+        this.db.query(sql, (err, results) => {
+            if (err) throw err;
+            console.log(results);
+        });
     }
 
     createDepartment(name) {
@@ -30,10 +34,6 @@ class EmployeeDatabase {
         this.connection.query(sql, values, (err, result) => {
             if (err) throw err;
         });
-    }
-
-    createRole() {
-        //create new role
     }
 }
 
