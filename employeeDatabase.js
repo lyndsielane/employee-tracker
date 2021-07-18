@@ -23,8 +23,13 @@ class EmployeeDatabase {
         //insert new employee
     }
 
-    createDepartment() {
-        //create new department
+    createDepartment(name) {
+        const sql = `INSERT INTO department (name) VALUES (?);`;
+        const values = [ name ];
+
+        this.connection.query(sql, values, (err, result) => {
+            if (err) throw err;
+        });
     }
 
     createRole() {
