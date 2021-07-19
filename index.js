@@ -29,7 +29,10 @@ const mainPrompt = [
 async function init() {
     
     CFonts.say('Employee|Manager', {
+    font: 'shade',
     align: 'left',
+    gradient: 'red,cyan',
+    independentGradient: true
 });
 
     db = new EmployeeDatabase();
