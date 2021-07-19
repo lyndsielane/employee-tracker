@@ -1,8 +1,12 @@
 const inquirer = require('inquirer');
+const mysql = require('mysql');
 const EmployeeDatabase = require('./employeeDatabase');
 let db;
+const CFonts = require('cfonts');
+const { yellow } = require('chalk');
 
 const mainPrompt = [
+    
     {
         type: "list",
         message: "What would you like to do?",
@@ -23,6 +27,11 @@ const mainPrompt = [
 ];
 
 async function init() {
+    
+    CFonts.say('Employee|Manager', {
+    align: 'left',
+});
+
     db = new EmployeeDatabase();
 
     let action;
