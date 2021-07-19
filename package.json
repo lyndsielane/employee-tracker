@@ -19,6 +19,7 @@
   "homepage": "https://github.com/lyndsielane/employee-tracker#readme",
   "dependencies": {
     "cfonts": "^2.9.3",
+    "console.table": "^0.10.0",
     "inquirer": "^8.1.2",
     "mysql": "^2.18.1"
   }

@@ -21,9 +21,9 @@ class EmployeeDatabase {
     getDepartments() {
         const sql = "SELECT name FROM department;";
 
-        this.db.query(sql, (err, results) => {
+        this.connection.query(sql, (err, results) => {
             if (err) throw err;
-            console.log(results);
+            this.consoleTable(results);
         });
     }
 
@@ -34,6 +34,11 @@ class EmployeeDatabase {
         this.connection.query(sql, values, (err, result) => {
             if (err) throw err;
         });
+    }
+
+    consoleTable(results) {
+        console.log("\n\n");
+        console.table(results);
     }
 }
 
