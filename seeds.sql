@@ -25,3 +25,5 @@ CREATE TABLE employee (
     FOREIGN KEY (role_id) REFERENCES role (id),
     FOREIGN KEY (manager_id) REFERENCES employee (id)
 );
+
+grant * priveledges to 'lyndsielane'@'localhost';

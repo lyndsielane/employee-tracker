@@ -55,11 +55,11 @@ async function createDepartment() {
         {
             type: "input",
             message: "What is the department name?",
-            name: "name"
+            name: "department"
         }
     ]);
 
-    db.createDepartment(response.name);
+    db.createDepartment(response.department);
 }
 
 init();
