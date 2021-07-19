@@ -8,8 +8,7 @@ async function init() {
     CFonts.say('Employee|Manager', {
         font: 'block',
         align: 'left',
-        background: 'light-magenta',
-        gradient: 'red,cyan',
+        gradient: 'red,green',
         independentGradient: true
     });
 
