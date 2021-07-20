@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+const mysql = require('mysql');
 
 class EmployeeDatabase {
     connection;
@@ -19,7 +19,7 @@ class EmployeeDatabase {
     }
 
     getDepartments() {
-        const sql = "SELECT department_name FROM department;";
+        const sql = "SELECT name FROM department;";
 
         this.connection.query(sql, (err, results) => {
             if (err) throw err;
@@ -27,9 +27,9 @@ class EmployeeDatabase {
         });
     }
 
-    createDepartment(department) {
-        const sql = `INSERT INTO department_name (department) VALUES (?);`;
-        const values = [ department ];
+    createDepartment(name) {
+        const sql = `INSERT INTO name (department) VALUES (?);`;
+        const values = [ name ];
 
         this.connection.query(sql, values, (err, result) => {
             if (err) throw err;

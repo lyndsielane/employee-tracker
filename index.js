@@ -55,7 +55,7 @@ async function createDepartment() {
         {
             type: "input",
             message: "What is the department name?",
-            name: "department"
+            name: "name"
         }
     ]);
 

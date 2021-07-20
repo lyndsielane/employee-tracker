@@ -26,4 +26,13 @@ CREATE TABLE employee (
     FOREIGN KEY (manager_id) REFERENCES employee (id)
 );
 
-grant * priveledges to 'lyndsielane'@'localhost';
+USE employee_tracker;
+
+INSERT INTO department (department_name)
+VALUES ("Instructors", "Management", "Custodial");
+
+INSERT INTO role (title, salary)
+VALUES ("Teacher", "Headmaster");
+
+INSERT INTO employee (first_name, last_name)
+VALUES ("Albus Dumbledore", "Minerva Mcgonagall");
