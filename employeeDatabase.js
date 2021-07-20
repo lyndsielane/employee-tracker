@@ -131,6 +131,18 @@ class EmployeeDatabase {
         });
     }
 
+    async updateEmployeeRole(employeeName, roleTitle) {
+        const role = await this.getRoleByTitle(roleTitle);
+        const nameParts = employeeName.split(' ');
+        const sql = "UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?;"
+        const values = [role.id, nameParts[0], nameParts[1]];
+
+        this.connection.query(sql, values, (err, result) => {
+            if (err) throw err;
+            console.log(`${employeeName}'s role has been updated.`);
+        });
+    }
+
     viewEmployeesByDepartment(name) {
         const sql = `
             SELECT employee.first_name, employee.last_name

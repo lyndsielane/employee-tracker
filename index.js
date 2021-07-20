@@ -55,6 +55,9 @@ async function init() {
             case "Remove employee":
                 await removeEmployee()
                 break;
+            case "Update employee role":
+                await updateEmployeeRole()
+                break;
             case "View all departments":
                 db.viewDepartments();
                 break;
@@ -140,6 +143,28 @@ async function removeEmployee() {
     ])
 
     await db.removeEmployee(response.employeeName);
+}
+
+async function updateEmployeeRole() {
+    var getEmployees = await db.getEmployees();
+    var roles = await db.getRoles();
+
+    const response = await inquirer.prompt([
+        {
+            type: "list",
+            message: "Which employee would you like to update?",
+            choices: getEmployees,
+            name: "employeeName"
+        },
+        {
+            type: "list",
+            message: `What role would you like to assign the employee?`,
+            choices: roles,
+            name: "newRole"
+        }
+    ])
+
+    await db.updateEmployeeRole(response.employeeName, response.newRole);
 }
 
 async function createDepartment() {
