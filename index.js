@@ -40,8 +40,11 @@ async function init() {
         action = response.choice;
 
         switch (response.choice) {
+            case "View all employees":
+                db.viewEmployees();
+                break;
             case "View all departments":
-                db.getDepartments();
+                db.viewDepartments();
                 break;
             case "Add department":
                 await createDepartment();

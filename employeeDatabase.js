@@ -18,7 +18,16 @@ class EmployeeDatabase {
         });
     }
 
-    getDepartments() {
+    viewEmployees() {
+        const sql = "SELECT first_name, last_name FROM employee;";
+
+        this.connection.query(sql, (err, results) => {
+            if (err) throw err;
+            this.consoleTable(results)
+        })
+    }
+
+    viewDepartments() {
         const sql = "SELECT name FROM department;";
 
         this.connection.query(sql, (err, results) => {
