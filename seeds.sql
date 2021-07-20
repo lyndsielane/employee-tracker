@@ -1,38 +1,24 @@
-DROP DATABASE IF EXISTS employee_tracker;
-
-CREATE DATABASE employee_tracker;
-
 USE employee_tracker;
 
-CREATE TABLE department (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  department_name VARCHAR(30) NOT NULL
-);
+INSERT INTO department (name) VALUES ("Management"), ("Staff");
 
-CREATE TABLE role (
-    id INT AUTO_INCREMENT,
-    title VARCHAR(30),
-    salary DECIMAL NULL,
-    FOREIGN KEY (id) REFERENCES department (id)
-);
+set @managementDeptId = (SELECT id FROM department WHERE name = "Management");
+set @staffDeptId = (SELECT id FROM department WHERE name = "Staff");
 
-CREATE TABLE employee (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(30) NOT NULL,
-    last_name VARCHAR(30) NOT NULL,
-    role_id INT NOT NULL,
-    manager_id INT NULL,
-    FOREIGN KEY (role_id) REFERENCES role (id),
-    FOREIGN KEY (manager_id) REFERENCES employee (id)
-);
+INSERT INTO role (title, salary, department_id) VALUES 
+("Headmaster", 95000, @managementDeptId),
+("Professor", 65000, @staffDeptId),
+("Janitorial", 25000, @staffDeptId);
 
-USE employee_tracker;
+set @headmasterRoleId = (SELECT id FROM role WHERE title = "Headmaster");
+set @professorRoleId = (SELECT id FROM role WHERE title = "Professor");
+set @janitorialRoleId = (SELECT id FROM role WHERE title = "Janitorial");
 
-INSERT INTO department (department_name)
-VALUES ("Instructors", "Management", "Custodial");
+INSERT INTO employee (first_name, last_name, role_id) VALUES ("Albus", "Dumbledore", @headmasterRoleId);
 
-INSERT INTO role (title, salary)
-VALUES ("Teacher", "Headmaster");
+set @headmasterEmployeeId = (SELECT id from employee where role_id = @headmasterRoleId);
 
-INSERT INTO employee (first_name, last_name)
-VALUES ("Albus Dumbledore", "Minerva Mcgonagall");
+INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES
+("Minerva", "Mcgonagall", @professorRoleId, @headmasterEmployeeId),
+("Rubeus", "Hagrid", @janitorialRoleId, @headmasterEmployeeId),
+("Severus", "Snape", @professorRoleId, @headmasterEmployeeId);

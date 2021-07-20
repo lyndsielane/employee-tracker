@@ -49,6 +49,9 @@ async function init() {
             case "View employees by manager":
                 await viewEmployeesByManager()
                 break;
+            case "Add employee":
+                await addEmployee()
+                break;
             case "View all departments":
                 db.viewDepartments();
                 break;
@@ -86,6 +89,38 @@ async function viewEmployeesByManager() {
     }]);
 
     db.viewEmployeesByManager(response.managerName);
+}
+
+async function addEmployee() {
+    var managerNames = await db.getManagers();
+    var roleNames = await db.getRoles();
+
+    const response = await inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the employee's first name?",
+            name: "firstName"
+        },
+        {
+            type: "input",
+            message: "What is the employee's last name?",
+            name: "lastName"
+        },
+        {
+            type: "list",
+            message: "What is the employee's role?",
+            choices: roleNames,
+            name: "role"
+        },
+        {
+            type: "list",
+            message: "Who is the employee's manager?",
+            choices: [ managerNames, "none"],
+            name: "manager"
+        }
+    ])
+
+    db.addEmployee(response.employee)
 }
 
 async function createDepartment() {

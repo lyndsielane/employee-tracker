@@ -68,6 +68,12 @@ class EmployeeDatabase {
         })
     }
 
+    addEmployee() {
+        const sql = `
+            INSERT INTO employees (first_name, last_name, role_id, manager_id)
+            VALUES ("${firstName}", "${lastName}" "${role}", "${manager}")`
+    }
+
     viewEmployeesByDepartment(name) {
         const sql = `
             SELECT employee.first_name, employee.last_name
@@ -127,6 +133,26 @@ class EmployeeDatabase {
         console.log("\n\n");
         console.table(results);
     }
-}
+
+    async getRoles() {
+        return new Promise((resolve, reject) => {
+          const sql = `SELECT title FROM role`;
+      
+          this.connection.query(sql, (err, results) => {
+              if (err) {
+                  reject(err);
+              }
+      
+              const roleArray = [];
+      
+              results.forEach(role => {
+                  roleArray.push(`${role.title}`);
+              });
+      
+              resolve(roleArray);
+          });
+      });
+      }
+};
 
 module.exports = EmployeeDatabase;
