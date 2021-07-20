@@ -27,6 +27,47 @@ class EmployeeDatabase {
         })
     }
 
+    async getManagers() {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT first_name, last_name FROM employee WHERE id IN (
+                    SELECT distinct manager_id FROM employee WHERE manager_id is not null
+                );`;
+
+            this.connection.query(sql, (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+
+                const nameArray = [];
+    
+                results.forEach(manager => {
+                    nameArray.push(`${manager.first_name} ${manager.last_name}`);
+                });
+
+                resolve(nameArray);
+            });
+        });
+    }
+
+    viewEmployeesByManager(name) {
+        const nameParts = name.split(' ');
+
+        const sql = `
+            SELECT employees.first_name, employees.last_name
+            FROM 
+                employee employees
+                JOIN employee managers ON employees.manager_id = managers.id
+            WHERE managers.first_name = ? AND managers.last_name = ?;`;
+
+        const values = nameParts;
+
+        this.connection.query(sql, values, (err, results) => {
+            if (err) throw err;
+            this.consoleTable(results)
+        })
+    }
+
     viewEmployeesByDepartment(name) {
         const sql = `
             SELECT employee.first_name, employee.last_name

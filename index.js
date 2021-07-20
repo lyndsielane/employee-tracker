@@ -44,7 +44,10 @@ async function init() {
                 db.viewEmployees();
                 break;
             case "View employees by department":
-                await viewEmployeeByDepartment();
+                await viewEmployeesByDepartment();
+                break;
+            case "View employees by manager":
+                await viewEmployeesByManager()
                 break;
             case "View all departments":
                 db.viewDepartments();
@@ -56,7 +59,7 @@ async function init() {
     }
 }
 
-async function viewEmployeeByDepartment() {
+async function viewEmployeesByDepartment() {
     // get department names
     var departmentNames = await db.getDepartments();
 
@@ -70,6 +73,19 @@ async function viewEmployeeByDepartment() {
 
     // get employees that are under that department
     db.viewEmployeesByDepartment(response.departmentName);
+}
+
+async function viewEmployeesByManager() {
+    var managerNames = await db.getManagers();
+
+    var response = await inquirer.prompt([{
+        type: "list",
+        message: "Which manager?",
+        choices: managerNames,
+        name: "managerName"
+    }]);
+
+    db.viewEmployeesByManager(response.managerName);
 }
 
 async function createDepartment() {
