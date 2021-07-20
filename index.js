@@ -52,6 +52,9 @@ async function init() {
             case "Add employee":
                 await addEmployee()
                 break;
+            case "Remove employee":
+                await removeEmployee()
+                break;
             case "View all departments":
                 db.viewDepartments();
                 break;
@@ -94,6 +97,7 @@ async function viewEmployeesByManager() {
 async function addEmployee() {
     var managerNames = await db.getManagers();
     var roleNames = await db.getRoles();
+    managerNames.push("none");
 
     const response = await inquirer.prompt([
         {
@@ -115,12 +119,27 @@ async function addEmployee() {
         {
             type: "list",
             message: "Who is the employee's manager?",
-            choices: [ managerNames, "none"],
+            choices: managerNames,
             name: "manager"
+        }
+    ]);
+
+    await db.addEmployee(response.firstName, response.lastName, response.role, response.manager);
+}
+
+async function removeEmployee() {
+    var viewEmployees = await db.removeEmployee;
+    
+    const response = await inquirer.prompt([
+        {
+            type: "list",
+            message: "Which employee would you like to remove?",
+            choices: viewEmployees,
+            name: "remove"
         }
     ])
 
-    db.addEmployee(response.employee)
+    await db.removeEmployee(response.firstName, response.lastName);
 }
 
 async function createDepartment() {

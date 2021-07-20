@@ -1,3 +1,4 @@
+const { last } = require('lodash');
 const mysql = require('mysql');
 
 class EmployeeDatabase {
@@ -68,10 +69,42 @@ class EmployeeDatabase {
         })
     }
 
-    addEmployee() {
+    async getEmployeeByName(name) {
+        return new Promise((resolve, reject) => {
+            const nameParts = name.split(' ');
+            const sql = "SELECT * FROM employee WHERE first_name = ? AND last_name = ?;"
+            const values = nameParts;
+
+            this.connection.query(sql, values, (err, result) => {
+                if (err) {
+                    reject(err);
+                }
+
+                resolve(result[0]);
+            });
+        });
+    }
+
+    async addEmployee(firstName, lastName, roleTitle, managerName) {
+        var manager = await this.getEmployeeByName(managerName);
+        var role = await this.getRoleByTitle(roleTitle);
+
         const sql = `
-            INSERT INTO employees (first_name, last_name, role_id, manager_id)
-            VALUES ("${firstName}", "${lastName}" "${role}", "${manager}")`
+            INSERT INTO employee (first_name, last_name, role_id, manager_id)
+            VALUES (?, ?, ?, ?)`;
+
+        const values = [ firstName, lastName, role.id, manager.id ]
+
+        this.connection.query(sql, values, (err, result) => {
+            if (err) throw err;
+            console.log(`${firstName} ${lastName} successfully added.`);
+        });
+    }
+
+    removeEmployee(firstName, lastName) {
+        const sql = `
+            REMOVE FROM employees (first_name, last_name)
+            VALUES ("${firstName}", "${lastName})`
     }
 
     viewEmployeesByDepartment(name) {
@@ -152,7 +185,22 @@ class EmployeeDatabase {
               resolve(roleArray);
           });
       });
-      }
+    }
+
+    async getRoleByTitle(title) {
+        return new Promise((resolve, reject) => {
+            const sql = "SELECT * FROM role WHERE title = ?;";
+            const values = [ title ];
+        
+            this.connection.query(sql, values, (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+        
+                resolve(results[0]);
+            });
+        });
+    }
 };
 
 module.exports = EmployeeDatabase;
