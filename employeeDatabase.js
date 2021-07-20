@@ -27,6 +27,43 @@ class EmployeeDatabase {
         })
     }
 
+    viewEmployeesByDepartment(name) {
+        const sql = `
+            SELECT employee.first_name, employee.last_name
+            FROM
+                employee
+                JOIN role ON employee.role_id = role.id
+                JOIN department ON role.department_id = department.id
+            WHERE department.name = ?;`;
+
+        const values = [ name ];
+
+        this.connection.query(sql, values, (err, results) => {
+            if (err) throw err;
+            this.consoleTable(results)
+        })
+    }
+
+    async getDepartments() {
+        return new Promise((resolve, reject) => {
+            const sql = "SELECT name FROM department;";
+
+            this.connection.query(sql, (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+
+                const nameArray = [];
+    
+                results.forEach(department => {
+                    nameArray.push(department.name);
+                });
+
+                resolve(nameArray);
+            });
+        });
+    }
+
     viewDepartments() {
         const sql = "SELECT name FROM department;";
 

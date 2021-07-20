@@ -43,6 +43,9 @@ async function init() {
             case "View all employees":
                 db.viewEmployees();
                 break;
+            case "View employees by department":
+                await viewEmployeeByDepartment();
+                break;
             case "View all departments":
                 db.viewDepartments();
                 break;
@@ -51,6 +54,22 @@ async function init() {
                 break;
         }
     }
+}
+
+async function viewEmployeeByDepartment() {
+    // get department names
+    var departmentNames = await db.getDepartments();
+
+    // create inquirer with the available department names as choices
+    var response = await inquirer.prompt([{
+        type: "list",
+        message: "Which department?",
+        choices: departmentNames,
+        name: "departmentName"
+    }]);
+
+    // get employees that are under that department
+    db.viewEmployeesByDepartment(response.departmentName);
 }
 
 async function createDepartment() {
