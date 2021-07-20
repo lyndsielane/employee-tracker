@@ -1,4 +1,3 @@
-const { last } = require('lodash');
 const mysql = require('mysql');
 
 class EmployeeDatabase {
@@ -24,8 +23,28 @@ class EmployeeDatabase {
 
         this.connection.query(sql, (err, results) => {
             if (err) throw err;
-            this.consoleTable(results)
+            this.consoleTable(results);
         })
+    }
+
+    async getEmployees() {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT first_name, last_name FROM employee;`;
+
+            this.connection.query(sql, (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+
+                const employeeArray = [];
+
+                results.forEach(employee => {
+                    employeeArray.push(`${employee.first_name} ${employee.last_name}`);
+                });
+
+                resolve(employeeArray);
+            });
+        });
     }
 
     async getManagers() {
@@ -101,10 +120,15 @@ class EmployeeDatabase {
         });
     }
 
-    removeEmployee(firstName, lastName) {
-        const sql = `
-            REMOVE FROM employees (first_name, last_name)
-            VALUES ("${firstName}", "${lastName})`
+    removeEmployee(employeeName) {
+        const nameParts = employeeName.split(' ');
+        const sql = "DELETE FROM employee WHERE first_name = ? AND last_name = ?;"
+        const values = nameParts;
+
+        this.connection.query(sql, values, (err, result) => {
+            if (err) throw err;
+            console.log(`${employeeName} has been removed.`);
+        });
     }
 
     viewEmployeesByDepartment(name) {

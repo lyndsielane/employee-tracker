@@ -128,18 +128,18 @@ async function addEmployee() {
 }
 
 async function removeEmployee() {
-    var viewEmployees = await db.removeEmployee;
-    
+    var getEmployees = await db.getEmployees();
+
     const response = await inquirer.prompt([
         {
             type: "list",
             message: "Which employee would you like to remove?",
-            choices: viewEmployees,
-            name: "remove"
+            choices: getEmployees,
+            name: "employeeName"
         }
     ])
 
-    await db.removeEmployee(response.firstName, response.lastName);
+    await db.removeEmployee(response.employeeName);
 }
 
 async function createDepartment() {
