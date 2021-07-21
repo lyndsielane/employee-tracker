@@ -19,7 +19,16 @@ class EmployeeDatabase {
     }
 
     viewEmployees() {
-        const sql = "SELECT first_name, last_name FROM employee;";
+        const sql = `
+            SELECT
+                employee.first_name,
+                employee.last_name,
+                role.title,
+                department.name as department
+            FROM
+                employee
+                JOIN role ON employee.role_id = role.id
+                JOIN department ON role.department_id = department.id;`;
 
         this.connection.query(sql, (err, results) => {
             if (err) throw err;
@@ -29,7 +38,7 @@ class EmployeeDatabase {
 
     async getEmployees() {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT first_name, last_name FROM employee;`;
+            const sql = `SELECT id, first_name, last_name FROM employee;`;
 
             this.connection.query(sql, (err, results) => {
                 if (err) {
@@ -39,7 +48,10 @@ class EmployeeDatabase {
                 const employeeArray = [];
 
                 results.forEach(employee => {
-                    employeeArray.push(`${employee.first_name} ${employee.last_name}`);
+                    employeeArray.push({
+                        name: `${employee.first_name} ${employee.last_name}`,
+                        value: employee.id
+                    });
                 });
 
                 resolve(employeeArray);
@@ -50,7 +62,7 @@ class EmployeeDatabase {
     async getManagers() {
         return new Promise((resolve, reject) => {
             const sql = `
-                SELECT first_name, last_name FROM employee WHERE id IN (
+                SELECT id, first_name, last_name FROM employee WHERE id IN (
                     SELECT distinct manager_id FROM employee WHERE manager_id is not null
                 );`;
 
@@ -62,7 +74,10 @@ class EmployeeDatabase {
                 const nameArray = [];
     
                 results.forEach(manager => {
-                    nameArray.push(`${manager.first_name} ${manager.last_name}`);
+                    nameArray.push({
+                        name: `${manager.first_name} ${manager.last_name}`,
+                        value: manager.id
+                    });
                 });
 
                 resolve(nameArray);
@@ -70,17 +85,13 @@ class EmployeeDatabase {
         });
     }
 
-    viewEmployeesByManager(name) {
-        const nameParts = name.split(' ');
-
+    viewEmployeesByManager(managerId) {
         const sql = `
-            SELECT employees.first_name, employees.last_name
-            FROM 
-                employee employees
-                JOIN employee managers ON employees.manager_id = managers.id
-            WHERE managers.first_name = ? AND managers.last_name = ?;`;
+            SELECT first_name, last_name
+            FROM employee
+            WHERE manager_id = ?`;
 
-        const values = nameParts;
+        const values = [ managerId ];
 
         this.connection.query(sql, values, (err, results) => {
             if (err) throw err;
@@ -88,31 +99,12 @@ class EmployeeDatabase {
         })
     }
 
-    async getEmployeeByName(name) {
-        return new Promise((resolve, reject) => {
-            const nameParts = name.split(' ');
-            const sql = "SELECT * FROM employee WHERE first_name = ? AND last_name = ?;"
-            const values = nameParts;
-
-            this.connection.query(sql, values, (err, result) => {
-                if (err) {
-                    reject(err);
-                }
-
-                resolve(result[0]);
-            });
-        });
-    }
-
-    async addEmployee(firstName, lastName, roleTitle, managerName) {
-        var manager = await this.getEmployeeByName(managerName);
-        var role = await this.getRoleByTitle(roleTitle);
-
+    async addEmployee(firstName, lastName, roleId, managerId) {
         const sql = `
             INSERT INTO employee (first_name, last_name, role_id, manager_id)
             VALUES (?, ?, ?, ?)`;
 
-        const values = [ firstName, lastName, role.id, manager.id ]
+        const values = [ firstName, lastName, roleId, managerId ]
 
         this.connection.query(sql, values, (err, result) => {
             if (err) throw err;
@@ -120,39 +112,46 @@ class EmployeeDatabase {
         });
     }
 
-    removeEmployee(employeeName) {
-        const nameParts = employeeName.split(' ');
-        const sql = "DELETE FROM employee WHERE first_name = ? AND last_name = ?;"
-        const values = nameParts;
+    removeEmployee(employeeId) {
+        const sql = "DELETE FROM employee WHERE id = ?;"
+        const values = [employeeId];
 
         this.connection.query(sql, values, (err, result) => {
             if (err) throw err;
-            console.log(`${employeeName} has been removed.`);
+            console.log("Employee has been removed.");
         });
     }
 
-    async updateEmployeeRole(employeeName, roleTitle) {
-        const role = await this.getRoleByTitle(roleTitle);
-        const nameParts = employeeName.split(' ');
-        const sql = "UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?;"
-        const values = [role.id, nameParts[0], nameParts[1]];
+    async updateEmployeeRole(employeeId, roleId) {
+        const sql = "UPDATE employee SET role_id = ? WHERE id = ?;"
+        const values = [roleId, employeeId];
 
         this.connection.query(sql, values, (err, result) => {
             if (err) throw err;
-            console.log(`${employeeName}'s role has been updated.`);
+            console.log("Employee's role has been updated.");
         });
     }
 
-    viewEmployeesByDepartment(name) {
+    async updateEmployeeManager(employeeId, newManagerId) {
+        const sql = "UPDATE employee SET manager_id = ? WHERE id = ?;"
+        const values = [newManagerId, employeeId];
+
+        this.connection.query(sql, values, (err, result) => {
+            if (err) throw err;
+            console.log("Employee's manager has been updated.");
+        });
+    }
+
+    viewEmployeesByDepartment(departmentId) {
         const sql = `
             SELECT employee.first_name, employee.last_name
             FROM
                 employee
                 JOIN role ON employee.role_id = role.id
                 JOIN department ON role.department_id = department.id
-            WHERE department.name = ?;`;
+            WHERE department.id = ?;`;
 
-        const values = [ name ];
+        const values = [ departmentId ];
 
         this.connection.query(sql, values, (err, results) => {
             if (err) throw err;
@@ -162,7 +161,7 @@ class EmployeeDatabase {
 
     async getDepartments() {
         return new Promise((resolve, reject) => {
-            const sql = "SELECT name FROM department;";
+            const sql = "SELECT id, name FROM department;";
 
             this.connection.query(sql, (err, results) => {
                 if (err) {
@@ -172,7 +171,10 @@ class EmployeeDatabase {
                 const nameArray = [];
     
                 results.forEach(department => {
-                    nameArray.push(department.name);
+                    nameArray.push({
+                        name: department.name,
+                        value: department.id
+                    });
                 });
 
                 resolve(nameArray);
@@ -190,7 +192,7 @@ class EmployeeDatabase {
     }
 
     createDepartment(name) {
-        const sql = `INSERT INTO name (department) VALUES (?);`;
+        const sql = `INSERT INTO department (name) VALUES (?);`;
         const values = [ name ];
 
         this.connection.query(sql, values, (err, result) => {
@@ -198,14 +200,9 @@ class EmployeeDatabase {
         });
     }
 
-    consoleTable(results) {
-        console.log("\n\n");
-        console.table(results);
-    }
-
     async getRoles() {
         return new Promise((resolve, reject) => {
-          const sql = `SELECT title FROM role`;
+          const sql = `SELECT id, title FROM role`;
       
           this.connection.query(sql, (err, results) => {
               if (err) {
@@ -215,7 +212,10 @@ class EmployeeDatabase {
               const roleArray = [];
       
               results.forEach(role => {
-                  roleArray.push(`${role.title}`);
+                  roleArray.push({
+                      name: role.title,
+                      value: role.id
+                  });
               });
       
               resolve(roleArray);
@@ -223,19 +223,9 @@ class EmployeeDatabase {
       });
     }
 
-    async getRoleByTitle(title) {
-        return new Promise((resolve, reject) => {
-            const sql = "SELECT * FROM role WHERE title = ?;";
-            const values = [ title ];
-        
-            this.connection.query(sql, values, (err, results) => {
-                if (err) {
-                    reject(err);
-                }
-        
-                resolve(results[0]);
-            });
-        });
+    consoleTable(results) {
+        console.log("\n\n");
+        console.table(results);
     }
 };
 

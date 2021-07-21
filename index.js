@@ -58,6 +58,9 @@ async function init() {
             case "Update employee role":
                 await updateEmployeeRole()
                 break;
+            case "Update employee manager":
+                await updateEmployeeManager()
+                break;
             case "View all departments":
                 db.viewDepartments();
                 break;
@@ -70,37 +73,37 @@ async function init() {
 
 async function viewEmployeesByDepartment() {
     // get department names
-    var departmentNames = await db.getDepartments();
+    var departments = await db.getDepartments();
 
     // create inquirer with the available department names as choices
     var response = await inquirer.prompt([{
         type: "list",
         message: "Which department?",
-        choices: departmentNames,
-        name: "departmentName"
+        choices: departments,
+        name: "departmentId"
     }]);
 
     // get employees that are under that department
-    db.viewEmployeesByDepartment(response.departmentName);
+    db.viewEmployeesByDepartment(response.departmentId);
 }
 
 async function viewEmployeesByManager() {
-    var managerNames = await db.getManagers();
+    var managers = await db.getManagers();
 
     var response = await inquirer.prompt([{
         type: "list",
         message: "Which manager?",
-        choices: managerNames,
-        name: "managerName"
+        choices: managers,
+        name: "managerId"
     }]);
 
-    db.viewEmployeesByManager(response.managerName);
+    db.viewEmployeesByManager(response.managerId);
 }
 
 async function addEmployee() {
-    var managerNames = await db.getManagers();
-    var roleNames = await db.getRoles();
-    managerNames.push("none");
+    var managers = await db.getManagers();
+    var roles = await db.getRoles();
+    managers.push({ name: "none", value: null });
 
     const response = await inquirer.prompt([
         {
@@ -116,55 +119,76 @@ async function addEmployee() {
         {
             type: "list",
             message: "What is the employee's role?",
-            choices: roleNames,
-            name: "role"
+            choices: roles,
+            name: "roleId"
         },
         {
             type: "list",
             message: "Who is the employee's manager?",
-            choices: managerNames,
-            name: "manager"
+            choices: managers,
+            name: "managerId"
         }
     ]);
 
-    await db.addEmployee(response.firstName, response.lastName, response.role, response.manager);
+    await db.addEmployee(response.firstName, response.lastName, response.roleId, response.managerId);
 }
 
 async function removeEmployee() {
-    var getEmployees = await db.getEmployees();
+    var employees = await db.getEmployees();
 
     const response = await inquirer.prompt([
         {
             type: "list",
             message: "Which employee would you like to remove?",
-            choices: getEmployees,
-            name: "employeeName"
+            choices: employees,
+            name: "employeeId"
         }
     ])
 
-    await db.removeEmployee(response.employeeName);
+    await db.removeEmployee(response.employeeId);
 }
 
 async function updateEmployeeRole() {
-    var getEmployees = await db.getEmployees();
+    var employees = await db.getEmployees();
     var roles = await db.getRoles();
 
     const response = await inquirer.prompt([
         {
             type: "list",
             message: "Which employee would you like to update?",
-            choices: getEmployees,
-            name: "employeeName"
+            choices: employees,
+            name: "employeeId"
         },
         {
             type: "list",
             message: `What role would you like to assign the employee?`,
             choices: roles,
-            name: "newRole"
+            name: "newRoleId"
         }
     ])
 
-    await db.updateEmployeeRole(response.employeeName, response.newRole);
+    await db.updateEmployeeRole(response.employeeId, response.newRoleId);
+}
+
+async function updateEmployeeManager() {
+    var employees = await db.getEmployees();
+
+    const response = await inquirer.prompt([
+        {
+            type: "list",
+            message: "Which employee would you like to update?",
+            choices: employees,
+            name: "employeeId"
+        },
+        {
+            type: "list",
+            message: "Which manager would you like to assign the employee?",
+            choices: employees,
+            name: "newManagerId"
+        }
+    ])
+
+    await db.updateEmployeeManager(response.employeeId, response.newManagerId);
 }
 
 async function createDepartment() {
@@ -176,7 +200,7 @@ async function createDepartment() {
         }
     ]);
 
-    db.createDepartment(response.department);
+    db.createDepartment(response.name);
 }
 
 init();
